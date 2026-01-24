@@ -1,0 +1,53 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Customer {
+  customerId  String   @id @map("customer_id")
+  name        String
+  phoneNumber String   @unique @map("phone_number")
+  totalPoints Int      @default(0) @map("total_points")
+  isActive    Boolean  @default(true) @map("is_active")
+  address     String?  // New field
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  ledger      PointsLedger[]
+  messages    MessageLog[]
+
+  @@map("customers")
+}
+
+model PointsLedger {
+  ledgerId        Int      @id @default(autoincrement()) @map("ledger_id")
+  customerId      String   @map("customer_id")
+  transactionType String   @map("transaction_type") // EARN, REDEEM, EXPIRY
+  points          Int
+  balanceAfter    Int      @map("balance_after")
+  billAmount      Decimal? @map("bill_amount")
+  description     String?
+  expiryDate      DateTime? @map("expiry_date")
+  remainingPoints Int      @default(0) @map("remaining_points") // For FIFO
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  customer        Customer @relation(fields: [customerId], references: [customerId])
+
+  @@map("points_ledger")
+}
+
+model MessageLog {
+  logId       Int      @id @default(autoincrement()) @map("log_id")
+  customerId  String   @map("customer_id")
+  messageType String   @map("message_type")
+  content     String
+  status      String   @default("SENT")
+  sentAt      DateTime @default(now()) @map("sent_at")
+
+  customer    Customer @relation(fields: [customerId], references: [customerId])
+
+  @@map("message_logs")
+}
