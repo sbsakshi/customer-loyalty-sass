@@ -73,12 +73,12 @@ export default function Home() {
             </div>
           </Card>
 
-          <Card className="bg-orange-300 text-white border-none group">
+          <Card className="bg-orange-600 text-white border-none group shadow-lg shadow-orange-500/30">
             <div className="relative z-10">
-              <h3 className="text-lg font-bold mb-2">Quick Action</h3>
-              <p className="text-orange-100 text-sm mb-6">Create a new bill instantly for a waiting customer.</p>
+              <h3 className="text-xl font-bold mb-2 text-black">Quick Action</h3>
+              <p className="text-orange-600 text-sm mb-6 font-medium">Create a new bill instantly for a waiting customer.</p>
               <Link href="/billing">
-                <Button variant="secondary" className="w-full justify-between group-hover:bg-emerald-400 shadow-none border-none">
+                <Button variant="white" className="w-full justify-between hover:bg-orange-50 text-orange-600">
                   New Bill
                   <ChevronRight size={16} />
                 </Button>

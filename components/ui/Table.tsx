@@ -41,24 +41,28 @@ export default function Table<T extends { id: string | number }>({
                     </tr>
                 </thead>
                 <tbody className="bg-white/40 divide-y divide-slate-100">
-                    {data.map((item, rowIdx) => (
-                        <tr
-                            key={item.id}
-                            onClick={() => onRowClick && onRowClick(item)}
-                            className={clsx(
-                                "transition-colors hover:bg-indigo-50/50",
-                                onRowClick && "cursor-pointer"
-                            )}
-                        >
-                            {columns.map((col, colIdx) => (
-                                <td key={colIdx} className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
-                                    {typeof col.accessor === 'function'
-                                        ? col.accessor(item)
-                                        : (item[col.accessor] as React.ReactNode)}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
+                    {data.map((item, rowIdx) => {
+                        // @ts-ignore
+                        const rowKey = item.customerId || item.id || rowIdx;
+                        return (
+                            <tr
+                                key={rowKey}
+                                onClick={() => onRowClick && onRowClick(item)}
+                                className={clsx(
+                                    "transition-colors hover:bg-orange-50/50",
+                                    onRowClick && "cursor-pointer"
+                                )}
+                            >
+                                {columns.map((col, colIdx) => (
+                                    <td key={colIdx} className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                                        {typeof col.accessor === 'function'
+                                            ? col.accessor(item)
+                                            : (item[col.accessor] as React.ReactNode)}
+                                    </td>
+                                ))}
+                            </tr>
+                        );
+                    })}
                     {data.length === 0 && (
                         <tr>
                             <td colSpan={columns.length} className="px-6 py-12 text-center text-slate-500">

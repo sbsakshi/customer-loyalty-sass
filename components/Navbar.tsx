@@ -23,13 +23,13 @@ export default function Navbar() {
             animate={{ y: 0, opacity: 1 }}
             className="sticky top-4 z-50 px-4 mb-8"
         >
-            <div className="glass-panel mx-auto max-w-7xl rounded-2xl shadow-lg border border-white/20">
+            <div className="bg-white mx-auto max-w-7xl rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100">
                 <div className="flex items-center justify-between h-16 px-6">
-                    <div className="flex items-center gap-2">
-                        <div className="p-2 bg-orange-350 rounded-lg shadow-lg shadow-orange-500/30">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-orange-600 rounded-lg shadow-md shadow-orange-500/30">
                             <Store className="h-6 w-6 text-white" />
                         </div>
-                        <span className="font-bold text-xl text-slate-800 tracking-tight hidden sm:block">
+                        <span className="font-extrabold text-2xl text-slate-900 tracking-tight hidden sm:block">
                             Manbhavan<span className="text-orange-600">Store</span>
                         </span>
                     </div>

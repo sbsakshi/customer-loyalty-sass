@@ -5,7 +5,7 @@ import { clsx } from "clsx";
 import { motion, HTMLMotionProps } from "framer-motion";
 
 interface ButtonProps extends Omit<HTMLMotionProps<"button">, "ref"> {
-    variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
+    variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "white";
     size?: "sm" | "md" | "lg";
     isLoading?: boolean;
 }
@@ -22,11 +22,12 @@ export default function Button({
     const baseStyles = "inline-flex items-center justify-center rounded-md font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]";
 
     const variants = {
-        primary: "bg-orange-350 text-white hover:bg-orange-700 shadow-md shadow-orange-500/20",
+        primary: "bg-orange-600 text-white hover:bg-orange-700 shadow-md shadow-orange-500/20",
         secondary: "bg-emerald-500 text-white hover:bg-emerald-600 shadow-md shadow-emerald-500/20",
         outline: "border-2 border-slate-200 bg-transparent text-slate-700 hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700",
         ghost: "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900",
         danger: "bg-red-500 text-white hover:bg-red-600 shadow-md",
+        white: "bg-white text-orange-600 hover:bg-orange-50 border-none shadow-sm", // New variant for high-contrast needs
     };
 
     const sizes = {
@@ -38,7 +39,7 @@ export default function Button({
     return (
         <motion.button
             whileTap={{ scale: 0.98 }}
-            className={clsx(baseStyles, variants[variant], sizes[size], className)}
+            className={clsx(baseStyles, variants[variant as keyof typeof variants], sizes[size], className)}
             disabled={disabled || isLoading}
             {...props}
         >

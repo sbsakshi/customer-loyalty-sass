@@ -85,39 +85,54 @@ export default function CustomersPage() {
                         <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Customer Database</h1>
                         <p className="text-slate-500 mt-1">Manage memberships and view loyalty points.</p>
                     </div>
-                    <Button
-                        onClick={() => setShowRegister(!showRegister)}
-                        variant={showRegister ? "outline" : "primary"}
-                        className="shadow-lg shadow-orange-500/20"
-                    >
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        {showRegister ? "Close Form" : "New Customer"}
-                    </Button>
                 </div>
 
-                <AnimatePresence>
-                    {showRegister && (
-                        <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden mb-8"
-                        >
-                            <NewCustomerForm />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
                 <div className="space-y-6">
+                    {/* Collapsible New Customer Section */}
+                    <div className="bg-white border border-orange-100 rounded-2xl shadow-xl shadow-orange-500/5 overflow-hidden">
+                        <div
+                            className="p-6 bg-gradient-to-r from-orange-50 to-white flex items-center justify-between cursor-pointer hover:bg-orange-50/50 transition-colors"
+                            onClick={() => setShowRegister(!showRegister)}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-orange-600 rounded-xl text-white shadow-lg shadow-orange-500/20">
+                                    <UserPlus className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-bold text-slate-900">Add New Customer</h2>
+                                    <p className="text-slate-500 text-sm">Create a loyalty membership card</p>
+                                </div>
+                            </div>
+                            <Button variant="ghost" size="sm" className="text-orange-600">
+                                {showRegister ? "Close" : "Expand"}
+                            </Button>
+                        </div>
+
+                        <AnimatePresence>
+                            {showRegister && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden border-t border-orange-100"
+                                >
+                                    <div className="p-6 bg-white">
+                                        <NewCustomerForm />
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
                     {/* Search Bar */}
-                    <Card noPadding className="p-2 flex items-center gap-2 border-orange-100 shadow-sm">
+                    <Card noPadding className="p-2 flex items-center gap-2 border-slate-200 shadow-sm bg-white">
                         <div className="p-3 text-slate-400">
                             <Search className="w-5 h-5" />
                         </div>
                         <input
                             type="text"
                             placeholder="Search by Name, Phone, or Membership ID..."
-                            className="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 placeholder:text-slate-400 h-12 outline-none"
+                            className="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 placeholder:text-slate-400 h-12 outline-none font-medium"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />

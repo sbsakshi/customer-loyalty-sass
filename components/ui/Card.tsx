@@ -16,7 +16,7 @@ export default function Card({ children, className, noPadding = false }: CardPro
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
             className={clsx(
-                "glass-card overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1",
+                "glass-card overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white border border-slate-100 shadow-sm",
                 !noPadding && "p-6",
                 className
             )}
