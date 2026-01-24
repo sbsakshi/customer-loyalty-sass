@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 import { motion } from "framer-motion";
-import { Home, Users, CreditCard, Gift, BarChart2, Store } from "lucide-react";
+import { Home, Users, CreditCard, Gift, BarChart2, Store, LogOut } from "lucide-react";
 
 const navItems = [
     { name: "Home", href: "/", icon: Home },
@@ -62,11 +62,22 @@ export default function Navbar() {
                         })}
                     </div>
 
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-4">
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
                             Live
                         </span>
+
+                        <button
+                            onClick={async () => {
+                                await fetch("/api/auth/logout", { method: "POST" });
+                                window.location.href = "/login";
+                            }}
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Sign Out"
+                        >
+                            <LogOut className="h-5 w-5" />
+                        </button>
                     </div>
                 </div>
             </div>
