@@ -55,9 +55,9 @@ export async function sendWhatsAppMessage(
             } else {
                 success = true;
             }
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error("WhatsApp Network Error:", e);
-            errorMsg = e.message;
+            errorMsg = e instanceof Error ? e.message : String(e);
         }
     } else {
         // Simulator Mode

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendWhatsAppMessage } from "@/lib/whatsapp";
 
+export const dynamic = "force-dynamic";
+
 // This endpoint to be called by Cron
 export async function GET(req: NextRequest) {
     try {

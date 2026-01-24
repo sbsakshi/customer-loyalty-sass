@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
         );
         await jwtVerify(token, secret);
         return NextResponse.next();
-    } catch (err) {
+    } catch {
         // Token invalid/expired
         return NextResponse.redirect(new URL("/login", request.url));
     }

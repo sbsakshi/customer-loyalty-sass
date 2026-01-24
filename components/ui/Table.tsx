@@ -42,8 +42,7 @@ export default function Table<T extends { id: string | number }>({
                 </thead>
                 <tbody className="bg-white/40 divide-y divide-slate-100">
                     {data.map((item, rowIdx) => {
-                        // @ts-ignore
-                        const rowKey = item.customerId || item.id || rowIdx;
+                        const rowKey = (item as any).customerId || (item as any).id || rowIdx;
                         return (
                             <tr
                                 key={rowKey}
