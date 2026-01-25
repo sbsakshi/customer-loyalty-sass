@@ -84,20 +84,20 @@ export default function Home() {
                 </Button>
               </Link>
             </div>
-            {/* Decorative circles */}
+
             <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
           </Card>
         </div>
 
-        {/* Quick Navigation Cards */}
-        <h2 className="text-xl font-bold text-slate-900 mb-6">Manage Store</h2>
+
+        <h2 className="text-xl font-bold text-slate-900 mb-6">Manage Store </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link href="/customers" className="block">
             <Card className="h-full hover:border-orange-200 group cursor-pointer transition-all bg-white/80">
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-orange-600 transition-colors">Customer Database</h3>
-                  <p className="text-slate-500 text-sm">View all registered customers, search by phone, and manage memberships.</p>
+                  <p className="text-slate-500 text-sm">View all registered customers, search by phone, and manage their membership.</p>
                 </div>
                 <div className="p-2 bg-slate-50 rounded-lg group-hover:bg-orange-50 transition-colors">
                   <Users className="text-slate-400 group-hover:text-orange-600" size={20} />
