@@ -1,6 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
 
 interface CardProps {
@@ -15,10 +16,12 @@ export default function Card({ children, className, noPadding = false }: CardPro
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className={clsx(
-                "glass-card overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white border border-slate-100 shadow-sm",
-                !noPadding && "p-6",
-                className
+            className={twMerge(
+                clsx(
+                    "glass-card overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white border border-slate-100 shadow-sm",
+                    !noPadding && "p-6",
+                    className
+                )
             )}
         >
             {children}

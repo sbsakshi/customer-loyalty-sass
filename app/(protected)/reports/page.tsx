@@ -49,12 +49,12 @@ export default function ReportsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                     <Card className="bg-orange-350 text-white border-none">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                            <div className="p-3 bg-emerald-100 rounded-xl text-emerald-600">
                                 <Users size={24} />
                             </div>
                             <div>
-                                <p className="text-orange-100 text-sm">Total Customers</p>
-                                <h3 className="text-2xl font-bold">{stats?.totalCustomers || 0}</h3>
+                                <p className="text-slate-500 text-sm">Total Customers</p>
+                                <h3 className="text-2xl font-bold text-slate-900">{stats?.totalCustomers || 0}</h3>
                             </div>
                         </div>
                     </Card>

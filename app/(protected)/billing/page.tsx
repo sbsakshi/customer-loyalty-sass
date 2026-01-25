@@ -83,7 +83,7 @@ export default function BillingPage() {
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0, height: 0 }}
                                 >
-                                    <Card className="min-h-[300px] flex flex-col justify-center items-center">
+                                    <Card className="min-h-[300px] flex flex-col justify-center items-center overflow-visible z-50 relative">
                                         <div className="text-center mb-6">
                                             <div className="bg-orange-50 p-4 rounded-full inline-block mb-4">
                                                 <Store className="w-8 h-8 text-orange-600" />
@@ -93,7 +93,7 @@ export default function BillingPage() {
                                                 Search for a customer to begin a new billing transaction.
                                             </p>
                                         </div>
-                                        <div className="w-full max-w-sm">
+                                        <div className="w-full max-w-sm relative z-[60]">
                                             <CustomerSearch onSelect={setSelectedCustomer} placeholder="Type name or phone number..." />
                                         </div>
                                     </Card>
@@ -145,6 +145,8 @@ export default function BillingPage() {
                                                         type="number"
                                                         value={billAmount}
                                                         onChange={(e) => setBillAmount(e.target.value)}
+                                                        min="0"
+                                                        step="0.01"
                                                         className="w-full pl-10 pr-4 py-4 text-3xl font-bold text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all placeholder:text-slate-300"
                                                         placeholder="0.00"
                                                         autoFocus
