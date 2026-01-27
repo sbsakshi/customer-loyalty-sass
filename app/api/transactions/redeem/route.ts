@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { expirePointsForCustomer } from "@/lib/expirePoints";
 
 export async function POST(req: NextRequest) {
     try {
@@ -18,31 +19,75 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Invalid points amount" }, { status: 400 });
         }
 
-        // 1. Transaction
+        // Execute transaction with FIFO logic
         const result = await prisma?.$transaction(async (tx: any) => {
-            // Check Balance
+            // STEP 1: Expire old points first (lazy expiry)
+            await expirePointsForCustomer(customerId, tx);
+
+            // STEP 2: Check balance after expiry
             const customer = await tx.customer.findUnique({
                 where: { customerId },
             });
 
-            if (!customer || customer.totalPoints < points) {
+            if (!customer) {
+                throw new Error("Customer not found");
+            }
+
+            if (customer.totalPoints < points) {
                 throw new Error("Insufficient points balance");
             }
 
-            // Create Ledger (Redeem)
-            const ledger = await tx.pointsLedger.create({
-                data: {
+            // STEP 3: FIFO consumption from oldest buckets
+            let pointsRemaining = points;
+
+            const availableBuckets = await tx.pointsBucket.findMany({
+                where: {
                     customerId,
-                    transactionType: "REDEEM",
-                    points: -points, // Negative for redemption
-                    balanceAfter: customer.totalPoints - points,
-                    description: description || "Redemption",
-                    remainingPoints: 0, // Not applicable for redemption entry itself
-                    expiryDate: null,
+                    remainingPoints: { gt: 0 },
                 },
+                orderBy: { expiryDate: "asc" }, // Oldest first (FIFO)
             });
 
-            // Update Customer
+            const bucketsConsumed: Array<{
+                bucketId: number;
+                consumed: number;
+                expiryDate: Date;
+            }> = [];
+
+            for (const bucket of availableBuckets) {
+                if (pointsRemaining <= 0) break;
+
+                const toConsume = Math.min(pointsRemaining, bucket.remainingPoints);
+                const newRemaining = bucket.remainingPoints - toConsume;
+
+                if (newRemaining === 0) {
+                    // Bucket fully consumed - DELETE it
+                    await tx.pointsBucket.delete({
+                        where: { bucketId: bucket.bucketId },
+                    });
+                } else {
+                    // Partial consumption - UPDATE it
+                    await tx.pointsBucket.update({
+                        where: { bucketId: bucket.bucketId },
+                        data: { remainingPoints: newRemaining },
+                    });
+                }
+
+                bucketsConsumed.push({
+                    bucketId: bucket.bucketId,
+                    consumed: toConsume,
+                    expiryDate: bucket.expiryDate,
+                });
+
+                pointsRemaining -= toConsume;
+            }
+
+            // Safety check
+            if (pointsRemaining > 0) {
+                throw new Error("FIFO consumption failed - insufficient buckets");
+            }
+
+            // STEP 4: Update customer balance
             const updatedCustomer = await tx.customer.update({
                 where: { customerId },
                 data: {
@@ -50,31 +95,59 @@ export async function POST(req: NextRequest) {
                 },
             });
 
-            // Note: FIFO Logic for burning points from specific earn entries is complex.
-            // For now, we just decrement the total. A proper system would iterate EARN entries 
-            // and decrement their 'remainingPoints'. 
+            // STEP 5: Create transaction ledger entry (permanent audit trail)
+            const ledger = await tx.transactionLedger.create({
+                data: {
+                    customerId,
+                    transactionType: "REDEEM",
+                    points: -points,
+                    balanceAfter: updatedCustomer.totalPoints,
+                    description: description || "Redemption",
+                },
+            });
 
-            return { customer: updatedCustomer, ledger };
+            return {
+                customer: updatedCustomer,
+                ledger,
+                bucketsConsumed,
+            };
         });
+
+        // Invalidate cached stats (fire-and-forget)
+        import('@/lib/cache-invalidation').then(({ invalidateGlobalStats }) =>
+            invalidateGlobalStats().catch(err =>
+                console.error('Cache invalidation failed:', err)
+            )
+        )
 
         // Send WhatsApp Notification
         if (result.customer) {
             const { sendWhatsAppMessage } = await import("@/lib/whatsapp");
-            const msg = `Points Redeemed! 🎁\nRedeemed: ${points}\nRemaining Balance: ${result.customer.totalPoints}\nEnjoy your reward!`;
+            const msg = `Points Redeemed Successfully!\n\nRedeemed: ${points} points\nRemaining Balance: ${result.customer.totalPoints}\nEnjoy your reward!`;
 
             try {
-                await sendWhatsAppMessage(result.customer.customerId, result.customer.phoneNumber, "TXN", msg);
+                await sendWhatsAppMessage(
+                    result.customer.customerId,
+                    result.customer.phoneNumber,
+                    "TXN",
+                    msg
+                );
             } catch (e) {
-                console.error("Failed to send whatsapp", e);
+                console.error("Failed to send WhatsApp notification:", e);
             }
         }
 
-        return NextResponse.json(result);
+        return NextResponse.json({
+            success: true,
+            customer: result.customer,
+            pointsRedeemed: points,
+            bucketsConsumed: result.bucketsConsumed.length,
+        });
     } catch (error: any) {
         console.error("Error processing redemption:", error);
         return NextResponse.json(
             { error: error.message || "Transaction failed" },
-            { status: error.message === "Insufficient points balance" ? 400 : 500 }
+            { status: error.message === "Insufficient points balance" || error.message === "Customer not found" ? 400 : 500 }
         );
     }
 }

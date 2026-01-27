@@ -68,6 +68,13 @@ export async function POST(req: NextRequest) {
             },
         });
 
+        // Invalidate stats cache since customer count changed (fire-and-forget)
+        import('@/lib/cache-invalidation').then(({ invalidateGlobalStats }) =>
+            invalidateGlobalStats().catch(err =>
+                console.error('Cache invalidation failed:', err)
+            )
+        )
+
         // Send Welcome Message
         const { sendWhatsAppMessage } = await import("@/lib/whatsapp");
         const welcomeMsg = `Welcome to our Loyalty Program, ${name}! 🌸\nYour Membership ID is: ${customerId}.\nShow this number at billing to earn points. Happy Shopping!`;

@@ -50,8 +50,10 @@ async function main() {
         },
     })
 
-    // Create Transactions (Ledger)
-    await prisma.pointsLedger.createMany({
+    const expiryDate = new Date(new Date().setMonth(new Date().getMonth() + 6)) // 6 months from now
+
+    // Create Transaction Ledger entries (audit trail)
+    await prisma.transactionLedger.createMany({
         data: [
             {
                 customerId: alice.customerId,
@@ -60,8 +62,6 @@ async function main() {
                 balanceAfter: 100,
                 billAmount: 500.00,
                 description: 'Purchase of groceries',
-                remainingPoints: 100,
-                expiryDate: new Date(new Date().setMonth(new Date().getMonth() + 6)) // 6 months from now
             },
             {
                 customerId: alice.customerId,
@@ -70,8 +70,6 @@ async function main() {
                 balanceAfter: 150,
                 billAmount: 250.00,
                 description: 'Purchase of snacks',
-                remainingPoints: 50,
-                expiryDate: new Date(new Date().setMonth(new Date().getMonth() + 6))
             },
             {
                 customerId: bob.customerId,
@@ -80,8 +78,6 @@ async function main() {
                 balanceAfter: 100,
                 billAmount: 1000.00,
                 description: 'Festival purchase',
-                remainingPoints: 50, // Let's say he redeemed 50 later (simulated below)
-                expiryDate: new Date(new Date().setMonth(new Date().getMonth() + 6))
             },
             {
                 customerId: bob.customerId,
@@ -89,6 +85,30 @@ async function main() {
                 points: -50,
                 balanceAfter: 50,
                 description: 'Redemption at checkout',
+            }
+        ]
+    })
+
+    // Create Points Buckets (working data for FIFO)
+    await prisma.pointsBucket.createMany({
+        data: [
+            {
+                customerId: alice.customerId,
+                pointsEarned: 100,
+                remainingPoints: 100,
+                expiryDate,
+            },
+            {
+                customerId: alice.customerId,
+                pointsEarned: 50,
+                remainingPoints: 50,
+                expiryDate,
+            },
+            {
+                customerId: bob.customerId,
+                pointsEarned: 100,
+                remainingPoints: 50, // 50 already redeemed
+                expiryDate,
             }
         ]
     })

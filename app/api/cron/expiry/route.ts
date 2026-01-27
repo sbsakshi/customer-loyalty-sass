@@ -4,95 +4,129 @@ import { sendWhatsAppMessage } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
 
-// This endpoint to be called by Cron
+/**
+ * Weekly Cleanup Cron Job
+ *
+ * This endpoint should be called weekly (e.g., every Sunday at midnight).
+ * It processes ALL expired buckets globally and sends WhatsApp notifications.
+ *
+ * Note: Daily user interactions already handle lazy expiry, so this is mainly
+ * for cleanup and ensuring customers get notified about expirations.
+ */
 export async function GET(req: NextRequest) {
     try {
-        const today = new Date();
+        const now = new Date();
 
-        // Find all EARN batches that are expired as of today and have remaining points
-        const expiredBatches = await prisma?.pointsLedger.findMany({
+        // Find all expired buckets across all customers
+        const expiredBuckets = await prisma?.pointsBucket.findMany({
             where: {
-                transactionType: "EARN",
-                expiryDate: { lte: today },
+                expiryDate: { lte: now },
                 remainingPoints: { gt: 0 },
             },
             include: {
-                customer: true // Include customer to get phone number
-            }
+                customer: true, // Include customer for phone number
+            },
+            orderBy: { customerId: "asc" },
         });
 
-        if (!expiredBatches || expiredBatches.length === 0) {
-            return NextResponse.json({ message: "No points to expire" });
-        }
-
-        const customerExpiryMap = new Map<string, { amount: number, phone: string, name: string }>();
-
-        // updates array for ledger logic
-        const updates: any[] = [];
-
-        for (const batch of expiredBatches) {
-            const amount = batch.remainingPoints;
-            const customerId = batch.customerId;
-
-            // 1. Mark batch as consumed
-            updates.push(
-                prisma?.pointsLedger.update({
-                    where: { ledgerId: batch.ledgerId },
-                    data: { remainingPoints: 0 }
-                })
-            );
-
-            // Accumulate data
-            const current = customerExpiryMap.get(customerId) || { amount: 0, phone: batch.customer.phoneNumber, name: batch.customer.name };
-            customerExpiryMap.set(customerId, {
-                amount: current.amount + amount,
-                phone: batch.customer.phoneNumber,
-                name: batch.customer.name
+        if (!expiredBuckets || expiredBuckets.length === 0) {
+            return NextResponse.json({
+                success: true,
+                message: "No expired buckets to process",
+                bucketsExpired: 0,
+                customersAffected: 0,
             });
         }
 
-        // Execute DB updates based on accumulated data
-        await prisma?.$transaction(async (tx: any) => {
-            await Promise.all(updates);
+        // Group expired buckets by customer
+        const customerExpiryMap = new Map<
+            string,
+            {
+                name: string;
+                phone: string;
+                totalExpired: number;
+                bucketIds: number[];
+            }
+        >();
 
+        for (const bucket of expiredBuckets) {
+            const existing = customerExpiryMap.get(bucket.customerId);
+
+            if (existing) {
+                existing.totalExpired += bucket.remainingPoints;
+                existing.bucketIds.push(bucket.bucketId);
+            } else {
+                customerExpiryMap.set(bucket.customerId, {
+                    name: bucket.customer.name,
+                    phone: bucket.customer.phoneNumber,
+                    totalExpired: bucket.remainingPoints,
+                    bucketIds: [bucket.bucketId],
+                });
+            }
+        }
+
+        // Execute database updates in transaction
+        await prisma?.$transaction(async (tx: any) => {
             for (const [customerId, data] of customerExpiryMap.entries()) {
-                // Deduct from customer
-                const customer = await tx.customer.update({
-                    where: { customerId },
-                    data: { totalPoints: { decrement: data.amount } }
+                // 1. Delete expired buckets
+                await tx.pointsBucket.deleteMany({
+                    where: {
+                        bucketId: { in: data.bucketIds },
+                    },
                 });
 
-                // Ledger entry
-                await tx.pointsLedger.create({
+                // 2. Update customer balance
+                const customer = await tx.customer.update({
+                    where: { customerId },
+                    data: { totalPoints: { decrement: data.totalExpired } },
+                });
+
+                // 3. Create transaction ledger entry (permanent audit trail)
+                await tx.transactionLedger.create({
                     data: {
                         customerId,
                         transactionType: "EXPIRY",
-                        points: -data.amount,
+                        points: -data.totalExpired,
                         balanceAfter: customer.totalPoints,
-                        description: "Points Expired",
-                        remainingPoints: 0
-                    }
+                        description: `Weekly cleanup: ${data.bucketIds.length} bucket(s) expired`,
+                    },
                 });
             }
         });
 
-        // Send WhatsApp Notifications (Outside transaction to avoid slow API blocking DB)
-        let sentCount = 0;
+        // Send WhatsApp notifications (outside transaction to avoid blocking)
+        let notificationsSent = 0;
+        let notificationsFailed = 0;
+
         for (const [customerId, data] of customerExpiryMap.entries()) {
-            const msg = `Alert: ${data.amount} points have expired today as per the 6-month validity policy.\nCurrent Balance: ${data.amount} less.`;
-            // In a real job, we might queue this.
-            await sendWhatsAppMessage(customerId, data.phone, "EXPIRY", msg);
-            sentCount++;
+            const msg = `⚠️ Points Expiry Alert\n\n${data.totalExpired} points have expired as per our 6-month validity policy.\n\nPlease check your updated balance.\n\nThank you for being a valued customer!`;
+
+            try {
+                await sendWhatsAppMessage(customerId, data.phone, "EXPIRY", msg);
+                notificationsSent++;
+            } catch (e) {
+                console.error(`Failed to send notification to ${customerId}:`, e);
+                notificationsFailed++;
+            }
         }
 
         return NextResponse.json({
-            message: `Processed expiry for ${expiredBatches.length} batches. Sent ${sentCount} notifications.`
+            success: true,
+            message: "Weekly expiry cleanup completed successfully",
+            bucketsExpired: expiredBuckets.length,
+            customersAffected: customerExpiryMap.size,
+            notificationsSent,
+            notificationsFailed,
+            timestamp: new Date().toISOString(),
         });
-
     } catch (error) {
-        console.error("Error processing expiry:", error);
+        console.error("Error processing weekly expiry cleanup:", error);
         return NextResponse.json(
-            { error: "Expiry job failed" },
+            {
+                success: false,
+                error: "Expiry cleanup job failed",
+                details: String(error),
+            },
             { status: 500 }
         );
     }

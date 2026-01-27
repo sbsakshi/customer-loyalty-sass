@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { expirePointsForCustomer } from "@/lib/expirePoints";
 
 export async function POST(req: NextRequest) {
     try {
@@ -18,28 +19,35 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Invalid bill amount" }, { status: 400 });
         }
 
-        // 1. Calculate Points (10% rounded down)
+        // Calculate Points (10% rounded down)
         const pointsEarned = Math.floor(amount * 0.10);
 
-        // 2. Transaction
-        // We need to update Customer Total AND Create Ledger Entry
-        // Prisma transaction ensures atomicity
+        if (pointsEarned === 0) {
+            return NextResponse.json({
+                error: "Bill amount too small to earn points (minimum ₹10)"
+            }, { status: 400 });
+        }
+
+        // Calculate expiry date (6 months from now)
+        const expiryDate = new Date();
+        expiryDate.setMonth(expiryDate.getMonth() + 6);
+
+        // Execute transaction
         const result = await prisma?.$transaction(async (tx: any) => {
-            // Create Ledger
-            const ledger = await tx.pointsLedger.create({
+            // STEP 1: Expire old points first (lazy expiry)
+            await expirePointsForCustomer(customerId, tx);
+
+            // STEP 2: Create bucket (working data for FIFO)
+            const bucket = await tx.pointsBucket.create({
                 data: {
                     customerId,
-                    transactionType: "EARN",
-                    points: pointsEarned,
-                    balanceAfter: 0, // Placeholder, will update
-                    billAmount: amount,
-                    description: description || "Purchase",
-                    remainingPoints: pointsEarned, // For FIFO
-                    expiryDate: new Date(new Date().setMonth(new Date().getMonth() + 6)), // 6 months later
+                    pointsEarned,
+                    remainingPoints: pointsEarned,
+                    expiryDate,
                 },
             });
 
-            // Update Customer
+            // STEP 3: Update customer balance
             const customer = await tx.customer.update({
                 where: { customerId },
                 data: {
@@ -47,33 +55,51 @@ export async function POST(req: NextRequest) {
                 },
             });
 
-            // Update Ledger BalanceAfter
-            // Note: In a high-concurrency real system, calculating balance might need locking.
-            // Here we trust the atomic update. The 'customer.totalPoints' is the source of truth for display.
-            // Ideally, we should fetch the NEW total points and save it to the ledger.
-
-            const updatedLedger = await tx.pointsLedger.update({
-                where: { ledgerId: ledger.ledgerId },
+            // STEP 4: Create transaction ledger entry (permanent audit trail)
+            const ledger = await tx.transactionLedger.create({
                 data: {
+                    customerId,
+                    transactionType: "EARN",
+                    points: pointsEarned,
                     balanceAfter: customer.totalPoints,
+                    billAmount: amount,
+                    description: description || "Purchase",
                 },
             });
 
-            return { customer, ledger: updatedLedger };
+            return { customer, ledger, bucket };
         });
 
+        // Invalidate cached stats (fire-and-forget)
+        import('@/lib/cache-invalidation').then(({ invalidateGlobalStats }) =>
+            invalidateGlobalStats().catch(err =>
+                console.error('Cache invalidation failed:', err)
+            )
+        )
+
         // Send WhatsApp Notification
-        // We must fetch phone number first (or return it from prisma update)
-        // The result from update contains the customer info.
         if (result.customer) {
             const { sendWhatsAppMessage } = await import("@/lib/whatsapp");
-            const msg = `Thank you for shopping with us 😊\nBill: ₹${billAmount}\nPoints earned: ${pointsEarned}\nTotal points: ${result.customer.totalPoints}\nValid till: ${new Date(new Date().setMonth(new Date().getMonth() + 6)).toLocaleDateString()}`;
+            const msg = `Thank you for shopping with us!\n\nBill: ₹${amount.toFixed(2)}\nPoints earned: ${pointsEarned}\nTotal points: ${result.customer.totalPoints}\nValid till: ${expiryDate.toLocaleDateString("en-IN")}`;
 
-            // Fire and forget or await? Let's await for now for easier debugging
-            await sendWhatsAppMessage(result.customer.customerId, result.customer.phoneNumber, "TXN", msg);
+            try {
+                await sendWhatsAppMessage(
+                    result.customer.customerId,
+                    result.customer.phoneNumber,
+                    "TXN",
+                    msg
+                );
+            } catch (e) {
+                console.error("Failed to send WhatsApp notification:", e);
+            }
         }
 
-        return NextResponse.json(result);
+        return NextResponse.json({
+            success: true,
+            customer: result.customer,
+            pointsEarned,
+            expiryDate: expiryDate.toISOString(),
+        });
     } catch (error) {
         console.error("Error processing earn transaction:", error);
         return NextResponse.json(

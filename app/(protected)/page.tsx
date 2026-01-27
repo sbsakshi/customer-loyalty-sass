@@ -3,24 +3,12 @@ import { Users, TrendingUp, CreditCard, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import prisma from "@/lib/prisma";
+import { getDashboardStats } from "@/lib/dashboard-stats";
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-    const [customerCount, pointsLedgerSum] = await Promise.all([
-        prisma.customer.count(),
-        prisma.pointsLedger.aggregate({
-            _sum: {
-                points: true
-            },
-            where: {
-                transactionType: "EARN"
-            }
-        })
-    ]);
-
-    const pointsDistributed = pointsLedgerSum._sum.points || 0;
+    const { customerCount, pointsDistributed } = await getDashboardStats();
 
     return (
         <main className="min-h-screen pb-20 bg-slate-50/50">

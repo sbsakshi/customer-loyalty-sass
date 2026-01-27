@@ -13,30 +13,46 @@ model Customer {
   phoneNumber String   @unique @map("phone_number")
   totalPoints Int      @default(0) @map("total_points")
   isActive    Boolean  @default(true) @map("is_active")
-  address     String?  // New field
+  address     String?
   createdAt   DateTime @default(now()) @map("created_at")
 
-  ledger      PointsLedger[]
+  ledger      TransactionLedger[]
+  buckets     PointsBucket[]
   messages    MessageLog[]
 
   @@map("customers")
 }
 
-model PointsLedger {
+// IMMUTABLE: Complete transaction history (audit trail)
+model TransactionLedger {
   ledgerId        Int      @id @default(autoincrement()) @map("ledger_id")
   customerId      String   @map("customer_id")
   transactionType String   @map("transaction_type") // EARN, REDEEM, EXPIRY
-  points          Int
+  points          Int      // Positive for EARN, negative for REDEEM/EXPIRY
   balanceAfter    Int      @map("balance_after")
-  billAmount      Decimal? @map("bill_amount")
+  billAmount      Decimal? @map("bill_amount") // Only for EARN transactions
   description     String?
-  expiryDate      DateTime? @map("expiry_date")
-  remainingPoints Int      @default(0) @map("remaining_points") // For FIFO
   createdAt       DateTime @default(now()) @map("created_at")
 
   customer        Customer @relation(fields: [customerId], references: [customerId])
 
-  @@map("points_ledger")
+  @@map("transaction_ledger")
+}
+
+// MUTABLE: Active points buckets (deleted when expired/consumed)
+model PointsBucket {
+  bucketId        Int      @id @default(autoincrement()) @map("bucket_id")
+  customerId      String   @map("customer_id")
+  pointsEarned    Int      @map("points_earned")     // Original amount earned
+  remainingPoints Int      @map("remaining_points")  // Current available points
+  expiryDate      DateTime @map("expiry_date")       // When these points expire
+  earnedAt        DateTime @default(now()) @map("earned_at")
+
+  customer        Customer @relation(fields: [customerId], references: [customerId])
+
+  @@index([customerId, expiryDate])  // Fast FIFO queries
+  @@index([expiryDate])              // Fast expiry lookups
+  @@map("points_buckets")
 }
 
 model MessageLog {
