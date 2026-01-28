@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { jwtVerify } from "jose";
+import Sidebar from "@/components/Sidebar";
 
 export default async function ProtectedLayout({
     children,
@@ -23,5 +24,12 @@ export default async function ProtectedLayout({
         redirect("/login");
     }
 
-    return <>{children}</>;
+    return (
+        <div className="min-h-screen bg-slate-50">
+            <Sidebar />
+            <div className="pl-64">
+                {children}
+            </div>
+        </div>
+    );
 }

@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 :root {
-    --primary: #f97316;
-    /* Orange 500 */
-    --primary-hover: #ea580c;
-    /* Orange 600 */
+    --primary: #8b5cf6;
+    /* Violet 500 */
+    --primary-hover: #7c3aed;
+    /* Violet 600 */
     --secondary: #10b981;
     /* Emerald 500 */
-    --background-start: #fff7ed;
-    /* Orange 50 */
-    --background-end: #ffedd5;
-    /* Orange 100 */
+    --background-start: #f8fafc;
+    /* Slate 50 */
+    --background-end: #f1f5f9;
+    /* Slate 100 */
     --foreground: #1c1917;
     /* Stone 900 */
     --glass-bg: rgba(255, 255, 255, 0.85);
     --glass-border: rgba(255, 255, 255, 0.7);
+    --violet-gradient: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    --purple-gradient: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
 }
 
 @layer base {
     body {
-        background: linear-gradient(120deg, var(--background-start), #fff, var(--background-end));
-        background-size: 200% 200%;
-        animation: gradient-flow 25s ease infinite;
+        background: #f8fafc;
         color: var(--foreground);
         font-family: 'Inter', sans-serif;
         min-height: 100vh;

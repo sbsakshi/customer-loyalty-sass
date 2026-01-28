@@ -5,7 +5,7 @@ import { clsx } from "clsx";
 import { motion, HTMLMotionProps } from "framer-motion";
 
 interface ButtonProps extends Omit<HTMLMotionProps<"button">, "ref"> {
-    variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "white";
+    variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "white" | "violet" | "violet-outline" | "blue";
     size?: "sm" | "md" | "lg";
     isLoading?: boolean;
 }
@@ -19,15 +19,18 @@ export default function Button({
     disabled,
     ...props
 }: ButtonProps) {
-    const baseStyles = "inline-flex items-center justify-center rounded-md font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]";
+    const baseStyles = "inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]";
 
     const variants = {
         primary: "bg-orange-600 text-white hover:bg-orange-700 shadow-md shadow-orange-500/20",
         secondary: "bg-emerald-500 text-white hover:bg-emerald-600 shadow-md shadow-emerald-500/20",
-        outline: "border-2 border-slate-200 bg-transparent text-slate-700 hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700",
+        outline: "border-2 border-slate-200 bg-transparent text-slate-700 hover:border-slate-300 hover:bg-slate-50",
         ghost: "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900",
         danger: "bg-red-500 text-white hover:bg-red-600 shadow-md",
-        white: "bg-white text-orange-600 hover:bg-orange-50 border-none shadow-sm", // New variant for high-contrast needs
+        white: "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 shadow-sm",
+        violet: "bg-gradient-to-r from-violet-500 to-purple-600 text-white hover:from-violet-600 hover:to-purple-700 shadow-lg shadow-violet-500/30",
+        "violet-outline": "border-2 border-violet-200 bg-transparent text-violet-600 hover:bg-violet-50",
+        blue: "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 shadow-lg shadow-blue-500/30",
     };
 
     const sizes = {
