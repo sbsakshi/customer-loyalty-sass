@@ -25,9 +25,9 @@ export default async function ProtectedLayout({
     }
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-[#F5F5F5] pr-16 pl-8">
             <Sidebar />
-            <div className="pl-64">
+            <div className="pl-[100px]">
                 {children}
             </div>
         </div>

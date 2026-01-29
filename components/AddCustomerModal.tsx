@@ -73,76 +73,83 @@ export default function AddCustomerModal({ isOpen, onClose }: AddCustomerModalPr
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
                         onClick={handleClose}
                     />
 
                     {/* Modal */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.96, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        exit={{ opacity: 0, scale: 0.96, y: 20 }}
+                        transition={{ duration: 0.2 }}
                         className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl shadow-2xl z-50 overflow-hidden"
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-slate-100">
-                            <h2 className="text-xl font-bold text-slate-900">Add Customer</h2>
+                        <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
+                            <div>
+                                <h2 className="text-[17px] font-semibold text-[#1F2937]">Add customer</h2>
+                                <p className="text-[13px] text-[#6B7280]">Welcome someone new to your store</p>
+                            </div>
                             <button
                                 onClick={handleClose}
-                                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                className="p-2 text-[#9CA3AF] hover:text-[#6B7280] hover:bg-[rgba(0,0,0,0.03)] rounded-lg transition-colors"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-5 h-5" strokeWidth={1.5} />
                             </button>
                         </div>
 
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="p-6 space-y-5">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
-                                    Full Name <span className="text-red-500">*</span>
+                                <label className="block text-[13px] font-medium text-[#1F2937] mb-2">
+                                    Their name
                                 </label>
                                 <input
                                     type="text"
                                     required
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder="Enter customer name"
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
+                                    placeholder="Full name"
+                                    className="w-full px-4 py-3 bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] rounded-[12px] text-[#1F2937] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6C5CE7]/20 focus:border-[#A29BFE] transition-all"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
-                                    Phone Number <span className="text-red-500">*</span>
+                                <label className="block text-[13px] font-medium text-[#1F2937] mb-2">
+                                    Phone number
                                 </label>
-                                <input
-                                    type="tel"
-                                    required
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    placeholder="+91 98765 43210"
-                                    maxLength={10}
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
-                                />
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280] text-[14px]">+91</span>
+                                    <input
+                                        type="tel"
+                                        required
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        placeholder="98765 43210"
+                                        maxLength={10}
+                                        className="w-full pl-12 pr-4 py-3 bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] rounded-[12px] text-[#1F2937] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6C5CE7]/20 focus:border-[#A29BFE] transition-all"
+                                    />
+                                </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
-                                    Email Address
+                                <label className="block text-[13px] font-medium text-[#1F2937] mb-2">
+                                    Email <span className="text-[#9CA3AF] font-normal">(optional)</span>
                                 </label>
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="customer@email.com"
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
+                                    placeholder="email@example.com"
+                                    className="w-full px-4 py-3 bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] rounded-[12px] text-[#1F2937] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6C5CE7]/20 focus:border-[#A29BFE] transition-all"
                                 />
                             </div>
 
                             {/* Info Box */}
-                            <div className="bg-cyan-50 border border-cyan-100 rounded-xl p-4">
-                                <p className="text-sm text-cyan-700">
-                                    Customer will start with <span className="font-semibold text-cyan-600">0 points</span>. Points will be earned on their first purchase.
+                            <div className="bg-[#F6F5FF] border border-[rgba(108,92,231,0.15)] rounded-[12px] p-4">
+                                <p className="text-[13px] text-[#6B7280]">
+                                    They'll start fresh and earn points on their first visit.
                                 </p>
                             </div>
 
@@ -150,7 +157,7 @@ export default function AddCustomerModal({ isOpen, onClose }: AddCustomerModalPr
                             <div className="flex gap-3 pt-2">
                                 <Button
                                     type="button"
-                                    variant="white"
+                                    variant="ghost"
                                     className="flex-1"
                                     onClick={handleClose}
                                     disabled={loading}
@@ -159,18 +166,11 @@ export default function AddCustomerModal({ isOpen, onClose }: AddCustomerModalPr
                                 </Button>
                                 <Button
                                     type="submit"
-                                    variant="blue"
+                                    variant="primary"
                                     className="flex-1"
                                     isLoading={loading}
                                 >
-                                    {loading ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                            Adding...
-                                        </>
-                                    ) : (
-                                        "Add Customer"
-                                    )}
+                                    Add customer
                                 </Button>
                             </div>
                         </form>

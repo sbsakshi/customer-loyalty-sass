@@ -45,7 +45,6 @@ export default function NewBillModal({ isOpen, onClose }: NewBillModalProps) {
         search();
     }, [debouncedQuery]);
 
-    // Load all customers when modal opens
     useEffect(() => {
         if (isOpen && !query) {
             async function loadCustomers() {
@@ -124,25 +123,29 @@ export default function NewBillModal({ isOpen, onClose }: NewBillModalProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
                         onClick={handleClose}
                     />
 
                     {/* Modal */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.96, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        exit={{ opacity: 0, scale: 0.96, y: 20 }}
+                        transition={{ duration: 0.2 }}
                         className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl shadow-2xl z-50 overflow-hidden"
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-slate-100">
-                            <h2 className="text-xl font-bold text-slate-900">New Bill</h2>
+                        <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
+                            <div>
+                                <h2 className="text-[17px] font-semibold text-[#1F2937]">New bill</h2>
+                                <p className="text-[13px] text-[#6B7280]">Record a purchase</p>
+                            </div>
                             <button
                                 onClick={handleClose}
-                                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                className="p-2 text-[#9CA3AF] hover:text-[#6B7280] hover:bg-[rgba(0,0,0,0.03)] rounded-lg transition-colors"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-5 h-5" strokeWidth={1.5} />
                             </button>
                         </div>
 
@@ -150,57 +153,56 @@ export default function NewBillModal({ isOpen, onClose }: NewBillModalProps) {
                         <form onSubmit={handleSubmit} className="p-6 space-y-5">
                             {/* Customer Selection */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
-                                    Select Customer
+                                <label className="block text-[13px] font-medium text-[#1F2937] mb-2">
+                                    Who is this for?
                                 </label>
 
                                 {selectedCustomer ? (
-                                    <div className="flex items-center justify-between p-3 bg-violet-50 border border-violet-200 rounded-xl">
+                                    <div className="flex items-center justify-between p-3 bg-[#EDEBFF] border border-[rgba(108,92,231,0.15)] rounded-xl">
                                         <div>
-                                            <p className="font-medium text-slate-900">{selectedCustomer.name}</p>
-                                            <p className="text-sm text-slate-500">{selectedCustomer.phoneNumber}</p>
+                                            <p className="font-medium text-[#1F2937]">{selectedCustomer.name}</p>
+                                            <p className="text-[13px] text-[#6B7280]">{selectedCustomer.phoneNumber}</p>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <span className="text-sm font-medium text-violet-600">{selectedCustomer.totalPoints} pts</span>
+                                            <span className="text-[13px] font-medium text-[#6C5CE7]">{selectedCustomer.totalPoints} pts</span>
                                             <button
                                                 type="button"
                                                 onClick={() => setSelectedCustomer(null)}
-                                                className="text-slate-400 hover:text-slate-600"
+                                                className="text-[#9CA3AF] hover:text-[#6B7280]"
                                             >
-                                                <X className="w-4 h-4" />
+                                                <X className="w-4 h-4" strokeWidth={1.5} />
                                             </button>
                                         </div>
                                     </div>
                                 ) : (
                                     <>
                                         <div className="relative">
-                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9CA3AF]" strokeWidth={1.5} />
                                             <input
                                                 type="text"
                                                 value={query}
                                                 onChange={(e) => setQuery(e.target.value)}
-                                                placeholder="Search customer..."
-                                                className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
+                                                placeholder="Search by name or phone..."
+                                                className="w-full pl-10 pr-4 py-3 bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] rounded-xl text-[#1F2937] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6C5CE7]/20 focus:border-[#A29BFE] transition-all"
                                             />
                                             {searchLoading && (
-                                                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-violet-500 animate-spin" />
+                                                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6C5CE7] animate-spin" />
                                             )}
                                         </div>
 
-                                        {/* Customer List */}
                                         {customers.length > 0 && (
-                                            <div className="mt-2 max-h-48 overflow-y-auto border border-slate-200 rounded-xl divide-y divide-slate-100">
+                                            <div className="mt-2 max-h-48 overflow-y-auto bg-white border border-[rgba(0,0,0,0.06)] rounded-xl divide-y divide-[rgba(0,0,0,0.04)] shadow-lg">
                                                 {customers.map((customer) => (
                                                     <div
                                                         key={customer.customerId}
                                                         onClick={() => handleSelectCustomer(customer)}
-                                                        className="flex items-center justify-between p-3 hover:bg-slate-50 cursor-pointer transition-colors"
+                                                        className="flex items-center justify-between p-3 hover:bg-[#FAFAFA] cursor-pointer transition-colors"
                                                     >
                                                         <div>
-                                                            <p className="font-medium text-slate-900">{customer.name}</p>
-                                                            <p className="text-sm text-slate-500">{customer.phoneNumber}</p>
+                                                            <p className="font-medium text-[#1F2937]">{customer.name}</p>
+                                                            <p className="text-[13px] text-[#6B7280]">{customer.phoneNumber}</p>
                                                         </div>
-                                                        <span className="text-sm font-medium text-violet-600">{customer.totalPoints} pts</span>
+                                                        <span className="text-[13px] font-medium text-[#6C5CE7]">{customer.totalPoints} pts</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -211,25 +213,33 @@ export default function NewBillModal({ isOpen, onClose }: NewBillModalProps) {
 
                             {/* Bill Amount */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
-                                    Bill Amount (₹)
+                                <label className="block text-[13px] font-medium text-[#1F2937] mb-2">
+                                    Bill amount
                                 </label>
-                                <input
-                                    type="number"
-                                    value={billAmount}
-                                    onChange={(e) => setBillAmount(e.target.value)}
-                                    placeholder="Enter bill amount"
-                                    min="0"
-                                    step="0.01"
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
-                                />
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280] text-[15px]">₹</span>
+                                    <input
+                                        type="number"
+                                        value={billAmount}
+                                        onChange={(e) => setBillAmount(e.target.value)}
+                                        placeholder="0"
+                                        min="0"
+                                        step="0.01"
+                                        className="w-full pl-8 pr-4 py-3 bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] rounded-xl text-[#1F2937] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6C5CE7]/20 focus:border-[#A29BFE] transition-all"
+                                    />
+                                </div>
+                                {billAmount && (
+                                    <p className="text-[12px] text-[#6B7280] mt-2">
+                                        They'll earn <span className="text-[#16A34A] font-medium">+{Math.round(Number(billAmount) * 0.1)} points</span>
+                                    </p>
+                                )}
                             </div>
 
                             {/* Actions */}
                             <div className="flex gap-3 pt-2">
                                 <Button
                                     type="button"
-                                    variant="white"
+                                    variant="ghost"
                                     className="flex-1"
                                     onClick={handleClose}
                                     disabled={loading}
@@ -238,12 +248,12 @@ export default function NewBillModal({ isOpen, onClose }: NewBillModalProps) {
                                 </Button>
                                 <Button
                                     type="submit"
-                                    variant="violet"
+                                    variant="primary"
                                     className="flex-1"
                                     disabled={!selectedCustomer || !billAmount || loading}
                                     isLoading={loading}
                                 >
-                                    Create Bill
+                                    Save bill
                                 </Button>
                             </div>
                         </form>

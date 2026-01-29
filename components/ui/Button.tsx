@@ -1,11 +1,10 @@
 "use client";
 
-import { ButtonHTMLAttributes } from "react";
 import { clsx } from "clsx";
 import { motion, HTMLMotionProps } from "framer-motion";
 
 interface ButtonProps extends Omit<HTMLMotionProps<"button">, "ref"> {
-    variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "white" | "violet" | "violet-outline" | "blue";
+    variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "white";
     size?: "sm" | "md" | "lg";
     isLoading?: boolean;
 }
@@ -19,24 +18,28 @@ export default function Button({
     disabled,
     ...props
 }: ButtonProps) {
-    const baseStyles = "inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]";
+    // 12px border radius as per design system
+    const baseStyles = "inline-flex items-center justify-center font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
 
     const variants = {
-        primary: "bg-orange-600 text-white hover:bg-orange-700 shadow-md shadow-orange-500/20",
-        secondary: "bg-emerald-500 text-white hover:bg-emerald-600 shadow-md shadow-emerald-500/20",
-        outline: "border-2 border-slate-200 bg-transparent text-slate-700 hover:border-slate-300 hover:bg-slate-50",
-        ghost: "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-        danger: "bg-red-500 text-white hover:bg-red-600 shadow-md",
-        white: "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 shadow-sm",
-        violet: "bg-gradient-to-r from-violet-500 to-purple-600 text-white hover:from-violet-600 hover:to-purple-700 shadow-lg shadow-violet-500/30",
-        "violet-outline": "border-2 border-violet-200 bg-transparent text-violet-600 hover:bg-violet-50",
-        blue: "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 shadow-lg shadow-blue-500/30",
+        // Primary - Brand purple
+        primary: "bg-[#6C5CE7] text-white hover:bg-[#5B4ED6] focus:ring-[#6C5CE7] shadow-md",
+        // Secondary - Positive green
+        secondary: "bg-[#16A34A] text-white hover:bg-[#15803D] focus:ring-[#16A34A] shadow-md",
+        // Outline - Hairline border
+        outline: "border border-[rgba(0,0,0,0.06)] bg-transparent text-[#1F2937] hover:bg-[rgba(0,0,0,0.03)] focus:ring-[#6C5CE7]",
+        // Ghost - No background
+        ghost: "bg-transparent text-[#6B7280] hover:bg-[rgba(0,0,0,0.03)] hover:text-[#1F2937] focus:ring-[#6C5CE7]",
+        // Danger - Warning/destructive
+        danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-md",
+        // White - Surface color
+        white: "bg-white text-[#1F2937] hover:bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] shadow-sm focus:ring-[#6C5CE7]",
     };
 
     const sizes = {
-        sm: "h-8 px-3 text-xs",
-        md: "h-10 px-4 py-2 text-sm",
-        lg: "h-12 px-6 text-base",
+        sm: "h-8 px-3 text-[12px] rounded-[10px]",
+        md: "h-10 px-4 py-2 text-[13px] rounded-[12px]",
+        lg: "h-11 px-5 text-[14px] rounded-[12px]",
     };
 
     return (
@@ -52,7 +55,7 @@ export default function Button({
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    Processing...
+                    <span>Working...</span>
                 </span>
             ) : (
                 children

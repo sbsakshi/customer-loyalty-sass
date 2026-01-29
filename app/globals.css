@@ -1,84 +1,12 @@
 @import "tailwindcss";
 
-:root {
-    --primary: #8b5cf6;
-    /* Violet 500 */
-    --primary-hover: #7c3aed;
-    /* Violet 600 */
-    --secondary: #10b981;
-    /* Emerald 500 */
-    --background-start: #f8fafc;
-    /* Slate 50 */
-    --background-end: #f1f5f9;
-    /* Slate 100 */
-    --foreground: #1c1917;
-    /* Stone 900 */
-    --glass-bg: rgba(255, 255, 255, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.7);
-    --violet-gradient: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
-    --purple-gradient: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
-}
-
 @layer base {
     body {
-        background: #f8fafc;
-        color: var(--foreground);
-        font-family: 'Inter', sans-serif;
+        background: #FAFAFA;
+        color: #1F2937;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         min-height: 100vh;
         -webkit-font-smoothing: antialiased;
-    }
-}
-
-@layer components {
-    .glass-card {
-        background: var(--glass-bg);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid var(--glass-border);
-        box-shadow:
-            0 4px 6px -1px rgba(0, 0, 0, 0.02),
-            0 10px 15px -3px rgba(0, 0, 0, 0.04);
-        border-radius: 1.5rem;
-    }
-
-    .glass-panel {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid rgba(231, 229, 228, 0.8);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-    }
-
-    .premium-shadow {
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-    }
-
-    .animate-enter {
-        animation: enter 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    }
-}
-
-@keyframes enter {
-    from {
-        opacity: 0;
-        transform: translateY(12px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes gradient-flow {
-    0% {
-        background-position: 0% 50%
-    }
-
-    50% {
-        background-position: 100% 50%
-    }
-
-    100% {
-        background-position: 0% 50%
+        -moz-osx-font-smoothing: grayscale;
     }
 }

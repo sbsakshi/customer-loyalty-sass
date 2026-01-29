@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Users, Gift, TrendingUp, Clock, Plus, Receipt, ArrowUpRight } from "lucide-react";
-import Button from "@/components/ui/Button";
+import { Receipt, Plus, ArrowUpRight, Users, Coins, RefreshCw, Clock } from "lucide-react";
 import AddCustomerModal from "@/components/AddCustomerModal";
 import NewBillModal from "@/components/NewBillModal";
 
@@ -16,185 +16,188 @@ export default function DashboardContent({ customerCount, pointsDistributed }: D
     const [showAddCustomer, setShowAddCustomer] = useState(false);
     const [showNewBill, setShowNewBill] = useState(false);
 
-    // TODO: These values need to be fetched from the API
-    // Using calculated/placeholder values based on available data
     const activePoints = Math.round(pointsDistributed * 0.72);
     const expiringPoints = Math.round(pointsDistributed * 0.02);
+    const earnedThisMonth = Math.round(pointsDistributed * 0.1);
+    const redeemedThisMonth = Math.round(pointsDistributed * 0.026);
+    const netChange = earnedThisMonth - redeemedThisMonth;
 
     return (
         <>
-            <main className="min-h-screen p-8">
-                {/* Header */}
-                <div className="flex items-start justify-between mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold text-slate-900 mb-1">Welcome back</h1>
-                        <p className="text-slate-500">Here's what's happening with your store today.</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Button
-                            variant="white"
-                            onClick={() => setShowAddCustomer(true)}
-                            className="gap-2"
-                        >
-                            <Plus className="w-4 h-4" />
-                            Add Customer
-                        </Button>
-                        <Button
-                            variant="violet"
-                            onClick={() => setShowNewBill(true)}
-                            className="gap-2"
-                        >
-                            <Receipt className="w-4 h-4" />
-                            New Bill
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Stats Grid - First Row */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    {/* Total Customers */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm"
-                    >
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl">
-                                <Users className="w-5 h-5 text-white" />
-                            </div>
-                            <span className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
-                                <ArrowUpRight className="w-3 h-3" />
-                                +12%
-                            </span>
-                        </div>
-                        <p className="text-sm text-slate-500 uppercase tracking-wide mb-1">Total Customers</p>
-                        <h3 className="text-4xl font-bold text-slate-900">{customerCount.toLocaleString()}</h3>
-                        <p className="text-sm text-slate-400 mt-2">From last week</p>
-                    </motion.div>
-
-                    {/* Distributed */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm"
-                    >
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl">
-                                <Gift className="w-5 h-5 text-white" />
-                            </div>
-                        </div>
-                        <p className="text-sm text-slate-500 uppercase tracking-wide mb-1">Distributed</p>
-                        <h3 className="text-4xl font-bold text-slate-900">{(pointsDistributed / 1000).toFixed(1)}K</h3>
-                        <p className="text-sm text-emerald-600 font-medium mt-2">+8.2%</p>
-                    </motion.div>
-
-                    {/* Active */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm"
-                    >
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="p-3 bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl">
-                                <TrendingUp className="w-5 h-5 text-white" />
-                            </div>
-                        </div>
-                        <p className="text-sm text-slate-500 uppercase tracking-wide mb-1">Active</p>
-                        <h3 className="text-4xl font-bold text-slate-900">{(activePoints / 1000).toFixed(1)}K</h3>
-                        <p className="text-sm text-slate-400 mt-2">71.6%</p>
-                    </motion.div>
-                </div>
-
-                {/* Stats Grid - Second Row */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {/* Expiring */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm"
-                    >
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="p-3 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl">
-                                <Clock className="w-5 h-5 text-white" />
-                            </div>
-                        </div>
-                        <p className="text-sm text-slate-500 uppercase tracking-wide mb-1">Expiring</p>
-                        <h3 className="text-4xl font-bold text-slate-900">{expiringPoints.toLocaleString()}</h3>
-                        <p className="text-sm text-slate-400 mt-2">Next 30 days</p>
-                    </motion.div>
-
-                    {/* This Month Overview - Purple Gradient Card */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="md:col-span-2 bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-600 rounded-2xl p-6 text-white relative overflow-hidden"
-                    >
-                        {/* Background decoration */}
-                        <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 bg-white/20 rounded-lg backdrop-blur">
-                                    <TrendingUp className="w-5 h-5 text-white" />
-                                </div>
-                                <h3 className="text-lg font-semibold">This Month Overview</h3>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-8">
-                                <div>
-                                    <p className="text-sm text-white/70 uppercase tracking-wide mb-1">Earned</p>
-                                    <h4 className="text-3xl font-bold">{(pointsDistributed * 0.1 / 1000).toFixed(1)}K</h4>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-white/70 uppercase tracking-wide mb-1">Redeemed</p>
-                                    <h4 className="text-3xl font-bold">{(pointsDistributed * 0.026 / 1000).toFixed(1)}K</h4>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-white/70 uppercase tracking-wide mb-1">Net Change</p>
-                                    <h4 className="text-3xl font-bold text-emerald-300">+{(pointsDistributed * 0.074 / 1000).toFixed(1)}K</h4>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
-
-                {/* Recent Activity */}
+            <main className="min-h-screen px-12 py-8">
+                {/* ========== 1. TOP GREETING ========== */}
                 <motion.div
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+                    transition={{ duration: 0.2 }}
+                    className="mb-6"
                 >
-                    <div className="p-6 border-b border-slate-100">
-                        <h3 className="text-lg font-bold text-slate-900">Recent Activity</h3>
-                        <p className="text-sm text-slate-500">Latest customer transactions</p>
+                    <h1 className="text-[26px] font-semibold text-[#1F2937] tracking-tight italic">
+                        Good to see you today
+                    </h1>
+                    <p className="text-[14px] text-[#6B7280] mt-1">
+                        Your store is ready.
+                    </p>
+                </motion.div>
+
+                {/* ========== 2. HERO ACTION ZONE ========== */}
+                <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05, duration: 0.25 }}
+                    className="grid grid-cols-[1.6fr_1fr] gap-4 mb-6"
+                >
+                    {/* PRIMARY TILE - New Bill */}
+                    <motion.button
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setShowNewBill(true)}
+                        className="h-[130px] rounded-[16px] p-5 text-left cursor-pointer flex flex-col justify-between transition-shadow hover:shadow-[0_24px_48px_rgba(108,92,231,0.25)] relative overflow-hidden"
+                        style={{
+                            background: "linear-gradient(135deg, #A29BFE 0%, #C4B5FD 50%, #DDD6F3 100%)"
+                        }}
+                    >
+                        {/* Halftone dots texture */}
+                        <div className="absolute inset-0 pointer-events-none">
+                            {/* Top-left corner - Dense cluster */}
+                       
+                        </div>
+                        <div className="w-10 h-10 bg-white/90 rounded-[10px] flex items-center justify-center relative z-10">
+                            <Receipt className="w-5 h-5 text-[#6C5CE7]" strokeWidth={1.5} />
+                        </div>
+                        <div className="relative z-10">
+                            <h2 className="text-[18px] font-semibold text-white">New Bill</h2>
+                            <p className="text-[13px] text-white/80">Start your next transaction</p>
+                        </div>
+                    </motion.button>
+
+                    {/* SECONDARY TILE - Add Customer */}
+                    <motion.button
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setShowAddCustomer(true)}
+                        className="h-[130px] bg-white rounded-[16px] p-5 text-left cursor-pointer flex flex-col justify-between shadow-[0px_2px_8px_rgba(0,0,0,0.04)] transition-shadow hover:shadow-[0px_4px_16px_rgba(0,0,0,0.08)]"
+                    >
+                        <div className="w-10 h-10 bg-[#F3F4F6] rounded-[10px] flex items-center justify-center">
+                            <Plus className="w-5 h-5 text-[#6B7280]" strokeWidth={2} />
+                        </div>
+                        <div>
+                            <h2 className="text-[16px] font-semibold text-[#1F2937]">Add Customer</h2>
+                            <p className="text-[13px] text-[#6B7280]">Someone new to welcome</p>
+                        </div>
+                    </motion.button>
+                </motion.div>
+
+                {/* ========== 3. STATS GRID ========== */}
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.2 }}
+                    className="grid grid-cols-3 gap-4 mb-6"
+                >
+                    {/* Column 1: THIS MONTH */}
+                    <Link href="/reports" className="bg-white rounded-[16px] p-6 shadow-[0px_2px_8px_rgba(0,0,0,0.04)] h-full flex flex-col relative group hover:shadow-[0px_4px_16px_rgba(0,0,0,0.08)] transition-shadow">
+                        <ArrowUpRight className="w-4 h-4 text-[#D1D5DB] absolute top-4 right-4 group-hover:text-[#6B7280] transition-colors" strokeWidth={1.5} />
+                        <p className="text-[11px] font-medium text-[#9CA3AF] tracking-[0.5px] uppercase mb-6">THIS MONTH</p>
+                        <div className="flex-1 flex flex-col justify-between">
+                            <div>
+                                <div className="flex items-baseline gap-3">
+                                    <p className="text-[42px] font-semibold text-[#1F2937] leading-none">{earnedThisMonth}</p>
+                                    <p className="text-[13px] text-[#6B7280]">points<br/>earned</p>
+                                </div>
+                            </div>
+                            <div>
+                                <div className="flex items-baseline gap-3">
+                                    <p className="text-[32px] font-semibold text-[#1F2937] leading-none">{redeemedThisMonth}</p>
+                                    <p className="text-[13px] text-[#6B7280]">redeemed</p>
+                                </div>
+                            </div>
+                            <div>
+                                <div className="flex items-baseline gap-3">
+                                    <p className="text-[26px] font-semibold text-[#16A34A] leading-none">+{netChange}</p>
+                                    <p className="text-[13px] text-[#6B7280]">net</p>
+                                </div>
+                            </div>
+                        </div>
+                    </Link>
+
+                    {/* Column 2: Customers + Points in Circulation */}
+                    <div className="flex flex-col gap-4">
+                        <Link href="/customers" className="bg-white rounded-[16px] p-6 shadow-[0px_2px_8px_rgba(0,0,0,0.04)] flex-1 min-h-[180px] flex flex-col justify-between relative group hover:shadow-[0px_4px_16px_rgba(0,0,0,0.08)] transition-shadow">
+                            <ArrowUpRight className="w-4 h-4 text-[#D1D5DB] absolute top-4 right-4 group-hover:text-[#6B7280] transition-colors" strokeWidth={1.5} />
+                            <div className="flex items-center gap-2">
+                                <Users className="w-4 h-4 text-[#9CA3AF]" strokeWidth={1.5} />
+                                <p className="text-[13px] text-[#6B7280]">customers</p>
+                            </div>
+                            <p className="text-[36px] font-semibold text-[#1F2937] leading-none">{customerCount}</p>
+                        </Link>
+                        <div className="bg-white rounded-[16px] p-6 shadow-[0px_2px_8px_rgba(0,0,0,0.04)] flex-1 min-h-[180px] flex flex-col justify-between">
+                            <div className="flex items-center gap-2">
+                                <RefreshCw className="w-4 h-4 text-[#9CA3AF]" strokeWidth={1.5} />
+                                <p className="text-[13px] text-[#6B7280]">points in circulation</p>
+                            </div>
+                            <p className="text-[36px] font-semibold text-[#1F2937] leading-none">{activePoints}</p>
+                        </div>
                     </div>
 
-                    {/* TODO: Fetch recent transactions from API */}
-                    <div className="divide-y divide-slate-100">
-                        <div className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors">
-                            <div className="flex items-center gap-4">
-                                <div className="p-2 bg-emerald-100 rounded-lg">
-                                    <ArrowUpRight className="w-4 h-4 text-emerald-600" />
+                    {/* Column 3: Points Given + Expiring Soon */}
+                    <div className="flex flex-col gap-4">
+                        <div className="bg-white rounded-[16px] p-6 shadow-[0px_2px_8px_rgba(0,0,0,0.04)] flex-1 min-h-[150px] flex flex-col justify-between">
+                            <div className="flex items-center gap-2">
+                                <Coins className="w-4 h-4 text-[#9CA3AF]" strokeWidth={1.5} />
+                                <p className="text-[13px] text-[#6B7280]">points given</p>
+                            </div>
+                            <p className="text-[36px] font-semibold text-[#1F2937] leading-none">{pointsDistributed}</p>
+                        </div>
+                        <div className="bg-white rounded-[16px] p-6 shadow-[0px_2px_8px_rgba(0,0,0,0.04)] flex-1 min-h-[150px] flex flex-col justify-between">
+                            <div className="flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-[#F59E0B]" strokeWidth={1.5} />
+                                <p className="text-[13px] text-[#6B7280]">expiring soon</p>
+                            </div>
+                            <div>
+                                <p className="text-[36px] font-semibold text-[#F59E0B] leading-none">{expiringPoints}</p>
+                                <p className="text-[12px] text-[#9CA3AF] mt-1">next 30 days</p>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* ========== 4. JUST HAPPENED ========== */}
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.2 }}
+                    className="mt-2"
+                >
+                    <div className="mb-4">
+                        <h3 className="text-[15px] font-semibold text-[#1F2937]">Just happened</h3>
+                        <p className="text-[13px] text-[#9CA3AF]">Your store, right now</p>
+                    </div>
+
+                    {/* Activity Entry */}
+                    <div className="bg-white rounded-[14px] p-4 shadow-[0px_2px_8px_rgba(0,0,0,0.04)] mb-3">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-[10px] bg-[#F0FDF4] flex items-center justify-center">
+                                    <ArrowUpRight className="w-4 h-4 text-[#16A34A]" strokeWidth={2} />
                                 </div>
                                 <div>
-                                    <p className="font-medium text-slate-900">Rajesh Kumar</p>
-                                    <p className="text-sm text-slate-500">Bill: ₹450</p>
+                                    <p className="text-[14px] font-medium text-[#1F2937]">Rajesh Kumar</p>
+                                    <p className="text-[13px] text-[#6B7280]">₹450 bill</p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="font-semibold text-emerald-600">+45</p>
-                                <p className="text-xs text-slate-400">2 min ago</p>
+                                <p className="text-[15px] font-semibold text-[#16A34A]">+45</p>
+                                <p className="text-[12px] text-[#9CA3AF]">2 min ago</p>
                             </div>
                         </div>
+                    </div>
 
-                        <div className="p-8 text-center text-slate-400">
-                            <p className="text-sm">More transactions will appear here</p>
-                        </div>
+                    {/* Empty State */}
+                    <div className="py-8 text-center">
+                        <p className="text-[14px] text-[#9CA3AF]">
+                            Your next bill will show up here 👀
+                        </p>
                     </div>
                 </motion.div>
             </main>
