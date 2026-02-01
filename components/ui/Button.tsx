@@ -4,7 +4,7 @@ import { clsx } from "clsx";
 import { motion, HTMLMotionProps } from "framer-motion";
 
 interface ButtonProps extends Omit<HTMLMotionProps<"button">, "ref"> {
-    variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "white";
+    variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "white" | "violet";
     size?: "sm" | "md" | "lg";
     isLoading?: boolean;
 }
@@ -34,6 +34,8 @@ export default function Button({
         danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-md",
         // White - Surface color
         white: "bg-white text-[#1F2937] hover:bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] shadow-sm focus:ring-[#6C5CE7]",
+        // Violet - Gradient purple
+        violet: "bg-gradient-to-r from-[#A29BFE] to-[#C4B5FD] text-white hover:from-[#9389FE] hover:to-[#B8A8FC] focus:ring-[#A29BFE] shadow-md",
     };
 
     const sizes = {
