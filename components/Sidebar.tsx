@@ -25,7 +25,7 @@ export default function Sidebar() {
             transition={{ duration: 0.2, ease: "easeInOut" }}
             onMouseEnter={() => setIsExpanded(true)}
             onMouseLeave={() => setIsExpanded(false)}
-            className="fixed left-4 top-4 bottom-4 flex flex-col z-40 overflow-hidden rounded-2xl shadow-lg"
+            className="fixed left-4 top-4 bottom-4 flex flex-col z-40 overflow-hidden rounded-2xl shadow-[2px_0_12px_rgba(0,0,0,0.25)]"
             style={{
                 background: "linear-gradient(180deg, #A29BFE 0%, #B8B0FF 50%, #D4CFFF 100%)"
             }}
@@ -64,14 +64,14 @@ export default function Sidebar() {
                                 <Link
                                     href={item.href}
                                     className={clsx(
-                                        "flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all duration-150",
+                                        "flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all duration-150 focus-visible:ring-2 focus-visible:ring-slate-400/40",
                                         isActive
-                                            ? "bg-white/30 text-white font-medium"
-                                            : "text-white hover:bg-white/20 hover:text-white"
+                                            ? "bg-white/15 text-white font-medium"
+                                            : "text-white/60 hover:bg-white/10 hover:text-white"
                                     )}
                                 >
                                     <item.icon
-                                        className="h-5 w-5 flex-shrink-0 text-white"
+                                        className={clsx("h-5 w-5 flex-shrink-0", isActive ? "text-white" : "text-white/60")}
                                         strokeWidth={2}
                                     />
                                     <motion.span

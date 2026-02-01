@@ -14,7 +14,7 @@ interface AddCustomerModalProps {
 export default function AddCustomerModal({ isOpen, onClose }: AddCustomerModalProps) {
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
-    const [email, setEmail] = useState("");
+    const [address, setAddress] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -32,7 +32,7 @@ export default function AddCustomerModal({ isOpen, onClose }: AddCustomerModalPr
             const res = await fetch("/api/customers", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, phoneNumber: phone, address: email }),
+                body: JSON.stringify({ name, phoneNumber: phone, address }),
             });
 
             if (!res.ok) {
@@ -44,7 +44,7 @@ export default function AddCustomerModal({ isOpen, onClose }: AddCustomerModalPr
 
             setName("");
             setPhone("");
-            setEmail("");
+            setAddress("");
             router.refresh();
             onClose();
         } catch (error) {
@@ -59,7 +59,7 @@ export default function AddCustomerModal({ isOpen, onClose }: AddCustomerModalPr
         if (!loading) {
             setName("");
             setPhone("");
-            setEmail("");
+            setAddress("");
             onClose();
         }
     }
@@ -135,13 +135,13 @@ export default function AddCustomerModal({ isOpen, onClose }: AddCustomerModalPr
 
                             <div>
                                 <label className="block text-[13px] font-medium text-[#1F2937] mb-2">
-                                    Email <span className="text-[#9CA3AF] font-normal">(optional)</span>
+                                    Address <span className="text-[#9CA3AF] font-normal">(optional)</span>
                                 </label>
                                 <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="email@example.com"
+                                    type="text"
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                    placeholder="Street, City, State"
                                     className="w-full px-4 py-3 bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] rounded-[12px] text-[#1F2937] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6C5CE7]/20 focus:border-[#A29BFE] transition-all"
                                 />
                             </div>

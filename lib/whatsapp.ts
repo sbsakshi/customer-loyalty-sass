@@ -3,7 +3,7 @@ import prisma from "./prisma";
 // Environment variables for Meta WhatsApp Cloud API
 const WHATSAPP_API_TOKEN = process.env.WHATSAPP_API_TOKEN;
 const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
-const WHATSAPP_API_URL = `https://graph.facebook.com/v21.0/${WHATSAPP_PHONE_NUMBER_ID}/messages`;
+const WHATSAPP_API_URL = `https://graph.facebook.com/v22.0/${WHATSAPP_PHONE_NUMBER_ID}/messages`;
 
 type MessageType = "WELCOME" | "TXN" | "EXPIRY" | "PROMO";
 
@@ -13,8 +13,19 @@ interface SendMessageResult {
     error?: string;
 }
 
+function formatPhoneNumber(phone: string): string {
+    // Remove any non-digit characters
+    const digits = phone.replace(/\D/g, "");
+    // Add India country code if not present
+    if (digits.length === 10) {
+        return `91${digits}`;
+    }
+    return digits;
+}
+
 /**
  * Sends a WhatsApp message and logs it to the database.
+ * Uses hello_world template for initiating conversations.
  */
 export async function sendWhatsAppMessage(
     customerId: string,
@@ -22,13 +33,17 @@ export async function sendWhatsAppMessage(
     messageType: MessageType,
     text: string
 ): Promise<SendMessageResult> {
-    // 1. Prepare Request
+    const formattedPhone = formatPhoneNumber(phoneNumber);
+
+    // Use template message (required for initiating conversations)
     const body = {
         messaging_product: "whatsapp",
-        recipient_type: "individual",
-        to: phoneNumber,
-        type: "text",
-        text: { preview_url: false, body: text },
+        to: formattedPhone,
+        type: "template",
+        template: {
+            name: "hello_world",
+            language: { code: "en_US" }
+        }
     };
 
     let success = false;
