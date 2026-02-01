@@ -70,9 +70,9 @@ export async function POST(req: NextRequest) {
             return { customer, ledger, bucket };
         });
 
-        // Invalidate cached stats (fire-and-forget)
-        import('@/lib/cache-invalidation').then(({ invalidateGlobalStats }) =>
-            invalidateGlobalStats().catch(err =>
+        // Invalidate cached stats + frequent customers (fire-and-forget)
+        import('@/lib/cache-invalidation').then(({ invalidateTransactionCaches }) =>
+            invalidateTransactionCaches().catch(err =>
                 console.error('Cache invalidation failed:', err)
             )
         )

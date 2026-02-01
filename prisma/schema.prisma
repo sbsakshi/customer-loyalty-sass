@@ -67,3 +67,19 @@ model MessageLog {
 
   @@map("message_logs")
 }
+
+// Daily statistics snapshot for dashboard/reporting
+model DailyReport {
+  id               Int      @id @default(autoincrement())
+  reportDate       DateTime @unique @db.Date @map("report_date")
+  newCustomers     Int      @map("new_customers")
+  totalCustomers   Int      @map("total_customers")
+  pointsEarned     Int      @map("points_earned")
+  pointsRedeemed   Int      @map("points_redeemed")
+  pointsExpired    Int      @map("points_expired")
+  transactionCount Int      @map("transaction_count")
+  totalBillAmount  Decimal  @db.Decimal(12, 2) @map("total_bill_amount")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@map("daily_reports")
+}

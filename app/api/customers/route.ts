@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getCached } from "@/lib/cache-helpers";
+import { TTL } from "@/lib/redis-ttl";
 
 function generateMembershipId() {
     // Generate 8 digit number
@@ -103,15 +105,23 @@ export async function GET(req: NextRequest) {
 
     try {
         if (!search) {
-            // Return latest 20 customers
-            const customers = await prisma?.customer.findMany({
-                take: 20,
-                orderBy: { createdAt: "desc" },
-            });
+            // Return top 20 customers by bill frequency (cached)
+            const cacheEnabled = process.env.REDIS_ENABLED === 'true';
+
+            if (cacheEnabled) {
+                const customers = await getCached(
+                    'customers:frequent',
+                    TTL.FREQUENT_CUSTOMERS,
+                    getFrequentCustomers
+                );
+                return NextResponse.json(customers);
+            }
+
+            const customers = await getFrequentCustomers();
             return NextResponse.json(customers);
         }
 
-        // Search by Phone OR ID
+        // Search by Phone, ID, or Name (not cached - dynamic)
         const customers = await prisma?.customer.findMany({
             where: {
                 OR: [
@@ -131,4 +141,33 @@ export async function GET(req: NextRequest) {
             { status: 500 }
         );
     }
+}
+
+async function getFrequentCustomers() {
+    // Get top 20 customers by transaction (bill) frequency
+    const frequentCustomerIds = await prisma?.transactionLedger.groupBy({
+        by: ['customerId'],
+        where: { transactionType: 'EARN' },
+        _count: { customerId: true },
+        orderBy: { _count: { customerId: 'desc' } },
+        take: 20,
+    });
+
+    if (!frequentCustomerIds || frequentCustomerIds.length === 0) {
+        // Fallback to latest customers if no transactions yet
+        return prisma?.customer.findMany({
+            take: 20,
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    // Get customer details for these IDs (preserve order)
+    const customerIds = frequentCustomerIds.map(f => f.customerId);
+    const customers = await prisma?.customer.findMany({
+        where: { customerId: { in: customerIds } },
+    });
+
+    // Sort by frequency order
+    const customerMap = new Map(customers?.map(c => [c.customerId, c]));
+    return customerIds.map(id => customerMap.get(id)).filter(Boolean);
 }

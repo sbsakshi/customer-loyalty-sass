@@ -30,3 +30,31 @@ async function getDashboardStatsFromDB() {
         pointsDistributed: transactionLedgerSum._sum.points || 0
     }
 }
+
+export async function getRecentTransactions(limit: number = 5) {
+    const transactions = await prisma.transactionLedger.findMany({
+        where: {
+            transactionType: { in: ['EARN', 'REDEEM'] }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        include: {
+            customer: {
+                select: {
+                    name: true,
+                    customerId: true
+                }
+            }
+        }
+    });
+
+    return transactions.map(tx => ({
+        id: tx.ledgerId,
+        customerName: tx.customer.name,
+        customerId: tx.customer.customerId,
+        type: tx.transactionType,
+        points: tx.points,
+        billAmount: tx.billAmount ? Number(tx.billAmount) : null,
+        createdAt: tx.createdAt,
+    }));
+}

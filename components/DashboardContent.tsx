@@ -7,12 +7,36 @@ import { Receipt, Plus, ArrowUpRight, Users, Coins, RefreshCw, Clock } from "luc
 import AddCustomerModal from "@/components/AddCustomerModal";
 import NewBillModal from "@/components/NewBillModal";
 
+interface Transaction {
+    id: number;
+    customerName: string;
+    customerId: string;
+    type: string;
+    points: number;
+    billAmount: number | null;
+    createdAt: Date;
+}
+
 interface DashboardContentProps {
     customerCount: number;
     pointsDistributed: number;
+    recentTransactions: Transaction[];
 }
 
-export default function DashboardContent({ customerCount, pointsDistributed }: DashboardContentProps) {
+function formatTimeAgo(date: Date): string {
+    const now = new Date();
+    const diffMs = now.getTime() - new Date(date).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return `${diffDays}d ago`;
+}
+
+export default function DashboardContent({ customerCount, pointsDistributed, recentTransactions }: DashboardContentProps) {
     const [showAddCustomer, setShowAddCustomer] = useState(false);
     const [showNewBill, setShowNewBill] = useState(false);
 
@@ -178,31 +202,48 @@ export default function DashboardContent({ customerCount, pointsDistributed }: D
                         <p className="text-xs text-slate-500">Your store, right now</p>
                     </div>
 
-                    {/* Activity Entry */}
-                    <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-[0_6px_18px_rgba(0,0,0,0.12)] mb-3 hover:-translate-y-[1px] hover:shadow-[0_12px_28px_rgba(0,0,0,0.18)] transition-all duration-300 ease-out">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-[10px] bg-emerald-50 flex items-center justify-center">
-                                    <ArrowUpRight className="w-5 h-5 text-emerald-500" strokeWidth={2} />
+                    {recentTransactions.length > 0 ? (
+                        <div className="space-y-3">
+                            {recentTransactions.map((tx) => (
+                                <div
+                                    key={tx.id}
+                                    className="bg-white border border-slate-100 rounded-2xl p-4 shadow-[0_6px_18px_rgba(0,0,0,0.12)] hover:-translate-y-[1px] hover:shadow-[0_12px_28px_rgba(0,0,0,0.18)] transition-all duration-300 ease-out"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-10 h-10 rounded-[10px] flex items-center justify-center ${
+                                                tx.type === 'EARN' ? 'bg-emerald-50' : 'bg-violet-50'
+                                            }`}>
+                                                <ArrowUpRight className={`w-5 h-5 ${
+                                                    tx.type === 'EARN' ? 'text-emerald-500' : 'text-violet-500 rotate-180'
+                                                }`} strokeWidth={2} />
+                                            </div>
+                                            <div>
+                                                <p className="text-[14px] font-medium text-slate-900">{tx.customerName}</p>
+                                                <p className="text-xs text-slate-500">
+                                                    {tx.type === 'EARN' && tx.billAmount ? `₹${tx.billAmount.toFixed(0)} bill` : 'Redeemed'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className={`text-[15px] font-semibold ${
+                                                tx.type === 'EARN' ? 'text-emerald-500' : 'text-violet-500'
+                                            }`}>
+                                                {tx.type === 'EARN' ? '+' : ''}{tx.points}
+                                            </p>
+                                            <p className="text-xs text-slate-500">{formatTimeAgo(tx.createdAt)}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-[14px] font-medium text-slate-900">Rajesh Kumar</p>
-                                    <p className="text-xs text-slate-500">₹450 bill</p>
-                                </div>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-[15px] font-semibold text-emerald-500">+45</p>
-                                <p className="text-xs text-slate-500">2 min ago</p>
-                            </div>
+                            ))}
                         </div>
-                    </div>
-
-                    {/* Empty State */}
-                    <div className="py-8 text-center">
-                        <p className="text-sm text-slate-500">
-                            Your next bill will show up here
-                        </p>
-                    </div>
+                    ) : (
+                        <div className="py-8 text-center">
+                            <p className="text-sm text-slate-500">
+                                Your next bill will show up here
+                            </p>
+                        </div>
+                    )}
                 </motion.div>
             </main>
 
