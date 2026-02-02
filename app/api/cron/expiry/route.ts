@@ -109,20 +109,32 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        // Send warning notifications
+        // Send warning notifications in batches of 50 to avoid timeout
         let warningsSent = 0;
         let warningsFailed = 0;
 
-        for (const [customerId, data] of expiringByCustomer.entries()) {
-            const daysLeft = Math.ceil((data.earliestExpiry.getTime() - now.getTime()) / 86400000);
-            const msg = `⚠️ Points Expiring Soon!\n\n${data.totalExpiring} points will expire in ${daysLeft} day${daysLeft > 1 ? 's' : ''}.\n\nVisit us to redeem before they expire!\n\nThank you for being a valued customer.`;
+        const customerEntries = Array.from(expiringByCustomer.entries());
+        const BATCH_SIZE = 50;
 
-            try {
-                await sendWhatsAppMessage(customerId, data.phone, "EXPIRY_WARNING", msg);
-                warningsSent++;
-            } catch (e) {
-                console.error(`Failed to send warning to ${customerId}:`, e);
-                warningsFailed++;
+        for (let i = 0; i < customerEntries.length; i += BATCH_SIZE) {
+            const batch = customerEntries.slice(i, i + BATCH_SIZE);
+
+            const results = await Promise.allSettled(
+                batch.map(async ([customerId, data]) => {
+                    const daysLeft = Math.ceil((data.earliestExpiry.getTime() - now.getTime()) / 86400000);
+                    const msg = `⚠️ Points Expiring Soon!\n\n${data.totalExpiring} points will expire in ${daysLeft} day${daysLeft > 1 ? 's' : ''}.\n\nVisit us to redeem before they expire!\n\nThank you for being a valued customer.`;
+                    await sendWhatsAppMessage(customerId, data.phone, "EXPIRY_WARNING", msg);
+                    return customerId;
+                })
+            );
+
+            for (const result of results) {
+                if (result.status === 'fulfilled') {
+                    warningsSent++;
+                } else {
+                    warningsFailed++;
+                    console.error('Failed to send warning:', result.reason);
+                }
             }
         }
 
